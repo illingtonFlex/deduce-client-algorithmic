@@ -1,0 +1,14 @@
+{
+  "name": "deduce-client",
+  "version": "1.0.0",
+  "description": "Algorithmic deduce API client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jason C Norman",
+  "license": "ISC",
+  "dependencies": {
+    "node-rest-client": "3.1.0"
+  }
+}
