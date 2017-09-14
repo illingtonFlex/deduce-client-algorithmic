@@ -1,35 +1,24 @@
-#!/usr/bin/env node
+const client = require("./serviceClients.js");
+const async = require("async");
 
-'use strict';
+let alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 
-var Client = require('node-rest-client').Client;
 
-var client = new Client();
+let createdCallback = function(matchId) {
+    console.log(matchId);
+    let subset = new Array(21);
 
-var OK_STATUS = 200;
-var CREATED_STATUS = 201;
+    async.eachOfSeries(subset, function(letter, index, callback){
 
-var args = {
-    path: { "match_id": "",
-            "index": "",
-            "solution": "" }
+        client.letterAtIndex(matchId, index, function (data) {
+            subset[index] = data.entity;
+            callback();
+        });
+    }, function() {
+
+       let diff = alphabet.filter(x => subset.indexOf(x) < 0);
+       console.log(diff);
+    });
 };
 
-client.registerMethod("listValidWords", "http://localhost:8080/listValidWords", "GET");
-client.registerMethod("createMatch", "http://localhost:8080/deduceMatch/createMatch", "POST");
-client.registerMethod("matchDetails", "http://localhost:8080/deduceMatch/${match_id}/details", "GET");
-client.registerMethod("letterAtIndex", "http://localhost:8080/deduceMatch/${match_id}/letterAtIndex/{index}", "GET");
-client.registerMethod("solve", "http://localhost:8080/deduceMatch/${match_id}/solve/${solution}", "PUT");
-
-client.methods.createMatch(function(data, response) {
-    if(response.statusCode == CREATED_STATUS) {
-
-        args.path.match_id = data.entity.id;
-
-        client.methods.matchDetails(args, function(data, response){
-            if(response.statusCode == OK_STATUS) {
-                console.log(response.statusCode);
-            }
-        })
-    }
-});
+client.createMatch(createdCallback);
