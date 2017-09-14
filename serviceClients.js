@@ -5,9 +5,11 @@ const Client = require('node-rest-client').Client;
 let client = new Client();
 
 let args = {
-    path: { "match_id": "",
+    path: {
+        "match_id": "",
         "index": "",
-        "solution": "" }
+        "solution": ""
+    }
 };
 
 client.registerMethod("listValidWords", "http://localhost:8080/listValidWords", "GET");
@@ -18,6 +20,12 @@ client.registerMethod("solve",          "http://localhost:8080/deduceMatch/${mat
 
 module.exports = {
 
+    listValidWords: function(callback) {
+
+        client.methods.listValidWords(function(data, response) {
+            callback(data.entity.words);
+        });
+    },
     createMatch: function(callback) {
 
         client.methods.createMatch(function(data, response) {
