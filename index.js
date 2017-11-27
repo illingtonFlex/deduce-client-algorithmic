@@ -13,9 +13,12 @@ let createdCallback = function(matchId) {
             subset[index] = data.entity;
             callback();
         });
-
     },
     function() {
+
+        let solved = false;
+
+        let possibleSolutions = [];
 
         let diff = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K",
                     "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
@@ -28,13 +31,35 @@ let createdCallback = function(matchId) {
                 let match = true;
 
                 for(let j = 0; j<diff.length; j++) {
-
-                    match = match&data[i].includes(diff[j])
+                        match = match&data[i].includes(diff[j])
                 }
+                    
                 if(match) {
-                    console.log(data[i]);
+                    console.log("Found possible solution: " + data[i]);
+                    possibleSolutions.push(data[i]);
                 }
             }
+
+            async.eachOfSeries(possibleSolutions, function(aSolution, index, callback) {
+
+                if(!solved) {
+                client.solve(matchId, aSolution, function(solveAttemptResponse) {
+                           
+                    if(!solveAttemptResponse.entity.isSolved) {
+                        client.letterAtIndex(matchId, 0, function (ignore) {
+                            console.log("Failed solution attempt: " +aSolution);
+                            callback();
+                        });    
+                    }
+                    else {
+                        console.log("Solution found: " + aSolution);
+                        console.log("Number of steps for solution: " + solveAttemptResponse.entity.events.length);
+                        solved = true;
+                        callback();
+                    }
+                });
+                }
+            });
         });
         console.log(diff);
     });
