@@ -50,5 +50,15 @@ module.exports = {
         client.methods.letterAtIndex(args, function(data, response){
             callback(data);
         })
+    },
+
+    solve(matchId, solution, callback) {
+
+        args.path.match_id = matchId;
+        args.path.solution = solution;
+
+        client.methods.solve(args, function(data, response){
+            callback(data);
+        })
     }
 };
