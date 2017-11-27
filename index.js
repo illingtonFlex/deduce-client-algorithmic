@@ -43,21 +43,21 @@ let createdCallback = function(matchId) {
             async.eachOfSeries(possibleSolutions, function(aSolution, index, callback) {
 
                 if(!solved) {
-                client.solve(matchId, aSolution, function(solveAttemptResponse) {
-                           
-                    if(!solveAttemptResponse.entity.isSolved) {
-                        client.letterAtIndex(matchId, 0, function (ignore) {
-                            console.log("Failed solution attempt: " +aSolution);
+                    client.solve(matchId, aSolution, function(solveAttemptResponse) {
+                               
+                        if(!solveAttemptResponse.entity.isSolved) {
+                            client.letterAtIndex(matchId, 0, function (ignore) {
+                                console.log("Failed solution attempt: " +aSolution);
+                                callback();
+                            });    
+                        }
+                        else {
+                            console.log("Solution found: " + aSolution);
+                            console.log("Number of steps for solution: " + solveAttemptResponse.entity.events.length);
+                            solved = true;
                             callback();
-                        });    
-                    }
-                    else {
-                        console.log("Solution found: " + aSolution);
-                        console.log("Number of steps for solution: " + solveAttemptResponse.entity.events.length);
-                        solved = true;
-                        callback();
-                    }
-                });
+                        }
+                    });
                 }
             });
         });
