@@ -4,14 +4,14 @@ const async = require("async");
 client.createMatch(function beginNewMatch(matchId) {
 
     console.log(matchId);
-    let subset = new Array(21);
+    let subsetOfAlphabet = new Array(21);
 
-    async.eachOfSeries(subset, function iterateOverSubset(letter, index, callback){
+    async.eachOfSeries(subsetOfAlphabet, function applyToEachSubsetElement(ignoreBecauseSubsetIsEmpty, index, endOfIterationCallback){
 
-        client.letterAtIndex(matchId, index, function populateSubset(letterAtIndexResponse) {
+        client.letterAtIndex(matchId, index, function populateSubsetAtIndex(letterAtIndexResponse) {
 
-            subset[index] = letterAtIndexResponse.entity;
-            callback();
+            subsetOfAlphabet[index] = letterAtIndexResponse.entity;
+            endOfIterationCallback();
         });
     },
     function solveThePuzzleAfterAllLettersAreKnown() {
@@ -22,7 +22,7 @@ client.createMatch(function beginNewMatch(matchId) {
 
         let knownLettersInWord = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K",
                     "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
-                    "W", "X", "Y", "Z"].filter(x => subset.indexOf(x) < 0);
+                    "W", "X", "Y", "Z"].filter(x => subsetOfAlphabet.indexOf(x) < 0);
 
         client.listValidWords(function findAnagrams(allPossibleWordsResponse){
 
@@ -40,7 +40,7 @@ client.createMatch(function beginNewMatch(matchId) {
                 }
             }
 
-            async.eachOfSeries(possibleSolutions, function attemptSolutionWithAnagram(solutionCandidate, index, callback) {
+            async.eachOfSeries(possibleSolutions, function evaluatePossibleSolution(solutionCandidate, index, indicateEndOfEvaluationCallback) {
 
                 if(!solved) {
                     client.solve(matchId, solutionCandidate, function attemptSolutionWithAnagram(solveAttemptResponse) {
@@ -48,14 +48,14 @@ client.createMatch(function beginNewMatch(matchId) {
                         if(!solveAttemptResponse.entity.isSolved) {
                             client.letterAtIndex(matchId, 0, function logFailedSolutionAttempt(ignore) {
                                 console.log("Failed solution attempt: " + solutionCandidate);
-                                callback();
+                                indicateEndOfEvaluationCallback();
                             });    
                         }
                         else {
                             console.log("Solution found: " + solutionCandidate);
                             console.log("Number of steps for solution: " + solveAttemptResponse.entity.events.length);
                             solved = true;
-                            callback();
+                            indicateEndOfEvaluationCallback();
                         }
                     });
                 }
