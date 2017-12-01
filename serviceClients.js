@@ -26,6 +26,7 @@ module.exports = {
             callback(data.entity.words);
         });
     },
+    
     createMatch: function(callback) {
 
         client.methods.createMatch(function(data, response) {
